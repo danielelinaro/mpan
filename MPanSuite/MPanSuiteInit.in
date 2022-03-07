@@ -1,0 +1,38 @@
+function [] = MPanSuiteInit()
+% MPanSuiteInit  path/environment setup script for MPanSuite
+
+% Federico Bizzarri - Angelo Brambilla
+% $Revision: 0.1 $Date: 2015/04/10$
+
+stb = '@MPS_PATH@';
+
+if ~exist(stb, 'dir')
+  warning('MPanSuite not found'); 
+  return
+end
+
+% Add top-level directory to path
+
+addpath(stb);
+
+% Add MPanSuite components to path
+
+q = fullfile(stb,'mex_so');
+addpath(q);
+
+q = fullfile(stb,'src');
+if exist(q, 'dir')
+  addpath(q);
+  q = fullfile(stb,'src','MPanAlter');
+  addpath(q);
+  q = fullfile(stb,'src','MPanShared');
+  addpath(q);
+  q = fullfile(stb,'src','MPanTran');
+  addpath(q);
+  q = fullfile(stb,'src','MPanShooting');
+  addpath(q);
+end
+
+% Set MPansuite ENVIRONMENT VARIABLE
+tmp = fullfile(stb,'mex_so');
+setenv('PAN_MAT_SHL_PATH',tmp);
