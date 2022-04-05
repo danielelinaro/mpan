@@ -1,0 +1,23 @@
+module DQ02ABC(d,q,z,a,b,c);
+input  a, b, c;
+output d, q, z;
+electrical d, q, z, a, b, c;
+
+parameter real OMEGA = 2*pi*50;
+
+real Arg, ArgP, ArgN;
+
+analog begin
+
+Arg  = OMEGA * $abstime;
+ArgP = OMEGA * $abstime - 2/3*pi;
+ArgN = OMEGA * $abstime + 2/3*pi;
+
+v(a) <+ (sin(Arg ) * v(d) + cos(Arg ) * v(q)) + v(z);
+v(b) <+ (sin(ArgN) * v(d) + cos(ArgN) * v(q)) + v(z);
+v(c) <+ (sin(ArgP) * v(d) + cos(ArgP) * v(q)) + v(z);
+
+end
+
+endmodule
+

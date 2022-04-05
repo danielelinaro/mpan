@@ -1,0 +1,51 @@
+module MPPT(clk,vpv,ipv,out);
+input clk,vpv,ipv;
+output out;
+
+electrical clk,vpv,ipv;
+electrical out;
+
+parameter real VDIG  = 1; 
+parameter real VSTEP = 0.36;
+parameter real VREF  = 12;
+
+real PwrNew, PwrOld;
+real Sign;
+real VrefNew, VrefOld;
+
+analog begin 
+   
+    @(initial_model) begin
+        if( analysis( "restart" ) ) begin
+	    Sign = 1;
+	    VrefNew = VREF;
+	    VrefOld = VREF;
+	end
+    end
+
+    @(initial_step) begin
+	if( analysis( "tran" ) && analysis( "restart" ) ) begin
+	    PwrOld = v(vpv)*v(ipv);
+	    Sign = 1;
+	    VrefNew = VREF;
+	    VrefOld = VREF;
+	end
+    end
+
+    @(cross( v(clk) - VDIG/2, +1, 10u )) begin
+	PwrNew = v(vpv)*v(ipv);
+	if( PwrNew < PwrOld )
+	    Sign = -Sign;
+
+	VrefNew = VrefOld + Sign * VSTEP;
+    end
+
+    @(cross( v(clk) - VDIG/2, -1, 10u )) begin
+	PwrOld  = PwrNew;
+	VrefOld = VrefNew;
+    end
+
+    v(out) <+ VrefNew;
+end
+
+endmodule

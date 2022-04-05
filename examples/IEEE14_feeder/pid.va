@@ -1,0 +1,35 @@
+module PID(outp,outn,in,ref);
+input in, ref;
+output outp,outn;
+
+electrical in, ref, outp, outn;
+
+parameter real KI = 0.5;
+parameter real KP = 0.5;
+parameter real INITVAL = 0;
+parameter real VDIG = 1;
+parameter real MAX  =  1.0e38;
+parameter real MIN  = -1.0e38;
+
+
+real Int, Out;
+integer Reset;
+
+analog begin
+
+    if( analysis( "dc" ) ) Reset = 1;
+    else 
+        Reset = 0;
+       
+    Int = idt(KI*v(in,ref),INITVAL,Reset);
+
+    Out =  Int + KP * v(in,ref);
+
+    if( Out > MAX ) Out = MAX;
+    if( Out < MIN ) Out = MIN;
+        
+    v(outp,outn) <+ Out;
+
+end
+
+endmodule
