@@ -5,8 +5,10 @@ This toolbox provides an interface to the circuit and power network simulator PA
 
 To install MPanSuite on your system, type the following commands at the MATLAB prompt:
 
-`>> cd mpan/MPanSuite` <br/>
+`>> cd mpan` <br/>
 `>> MPanSuiteInstall`
+
+The installation script will ask you the path of the location where the compiled mex files and the MATLAB scripts should be installed. To install everything in the current folder, enter `./` when prompted.
 
 To use MPanSuite you need to add to the MATLAB path the folder where MPanSuiteInit.m is located and then type the following command at the MATLAB prompt every time you want to use the toolbox:
 
