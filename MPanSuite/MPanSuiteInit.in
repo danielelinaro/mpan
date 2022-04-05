@@ -1,8 +1,8 @@
 function [] = MPanSuiteInit()
 % MPanSuiteInit  path/environment setup script for MPanSuite
 
-% Federico Bizzarri - Angelo Brambilla
-% $Revision: 0.1 $Date: 2015/04/10$
+% Federico Bizzarri - Angelo Brambilla - Daniele Linaro
+% $Revision: 2.0 $Date: 2022/03/10$
 
 stb = '@MPS_PATH@';
 
@@ -30,6 +30,10 @@ if exist(q, 'dir')
   q = fullfile(stb,'src','MPanTran');
   addpath(q);
   q = fullfile(stb,'src','MPanShooting');
+  addpath(q);
+  q = fullfile(stb,'src','MPanDc');
+  addpath(q);
+  q = fullfile(stb,'src','MPanEnvelope');
   addpath(q);
 end
 

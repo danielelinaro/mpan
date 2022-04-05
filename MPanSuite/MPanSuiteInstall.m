@@ -3,7 +3,7 @@ function [] = MPanSuiteInstall
 
 % Federico Bizzarri <federico.bizzarri@polimi.it>
 % Copyright (c) 2015,
-% $Revision: 1.1 $Date: 2015/04/10$
+% $Revision: 2.0 $Date: 2022/03/10$
 
 % MEX compiler command
 % --------------------
@@ -90,6 +90,8 @@ mkdir(fullfile(where,'MPanSuite/src/MPanAlter'));
 mkdir(fullfile(where,'MPanSuite/src/MPanShared'));
 mkdir(fullfile(where,'MPanSuite/src/MPanTran'));
 mkdir(fullfile(where,'MPanSuite/src/MPanShooting'));
+mkdir(fullfile(where,'MPanSuite/src/MPanDc'));
+mkdir(fullfile(where,'MPanSuite/src/MPanEnvelope'));
 
 % MPansuite files list creation
 %------------------------------
@@ -114,25 +116,31 @@ src_shared_files = {
     fullfile('src/MPanShared','MPanUpdateRawFilesList.m')
     fullfile('src/MPanShared','MPanVarGetRawFile.m')
     fullfile('src/MPanShared','MPanVarInRawFile.m')
+    fullfile('src/MPanShared','MPanStrCommandComplete.m')
 };
 
 src_tran_files = {
     fullfile('src/MPanTran','MPanTran.m')
-    fullfile('src/MPanTran','MPanTranSetOptions.m')
-    fullfile('src/MPanTran','MPanTranSetOptionsShort.m')
 };
 
 src_alter_files = {
     fullfile('src/MPanAlter','MPanAlter.m')
-    fullfile('src/MPanAlter','MPanAlterSetOptions.m')
 };
 
 src_shooting_files = {
     fullfile('src/MPanShooting','MPanShooting.m')
-    fullfile('src/MPanShooting','MPanShootingSetOptions.m')
 };
 
-stb_files = [mex_so_files; src_shared_files; src_tran_files; src_alter_files; src_shooting_files];
+src_dc_files = {
+    fullfile('src/MPanDc','MPanDc.m')
+};
+
+src_envelope_files = {
+    fullfile('src/MPanEnvelope','MPanEnvelope.m')
+};
+
+stb_files = [mex_so_files; src_shared_files; src_tran_files; ...
+    src_alter_files; src_shooting_files; src_dc_files; src_envelope_files];
 
 % Now copying the MPanSuite files
 %--------------------------------

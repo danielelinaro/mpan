@@ -4,9 +4,9 @@ function MPanUpdateRawFilesList()
 %
 % Usage: MPanUpdateRawFilesList()
 %
-% Angelo Brambilla - Federico Bizzarri 
+% Angelo Brambilla - Federico Bizzarri - Daniele Linaro
 % Copyright (c) 2015.
-% Revision: 1.0.0 $Date: 2015/02/10$
+% Revision: 2.0 $Date: 2022/03/10$
 
 global MPanSuite_NETLIST_INFO
 

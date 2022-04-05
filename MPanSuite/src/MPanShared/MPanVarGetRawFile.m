@@ -19,9 +19,9 @@ function DATA = MPanVarGetRawFile(FILE, LIST, varargin)
 % See also
 %    MPanVarInRawFile
 %
-% Angelo Brambilla - Federico Bizzarri 
+% Angelo Brambilla - Federico Bizzarri - Daniele Linaro
 % Copyright (c) 2015.
-% Revision: 1.0.0 $Date: 2015/02/10$
+% Revision: 2.0 $Date: 2022/03/10$
 if nargin < 2 || nargin > 3
     error('MPanSuiteError: 2 or 3 inputs are needed.');
 elseif nargin == 2

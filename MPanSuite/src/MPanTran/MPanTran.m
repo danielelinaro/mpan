@@ -1,57 +1,36 @@
-function varargout = MPanTran(NAME, TSTOP, OPTIONS)
+function varargout = MPanTran(NAME, TSTOP, MEMVARS, varargin)
 % MPanTran runs a PAN transient analysis. A netlist must be already loaded
 % with MPanNetLoad.
 %
 % Usage: MPanTran(NAME, TSTOP)
-%        MPanTran(NAME, TSTOP, OPTIONS)
-%        S = MPanTran(NAME, TSTOP, OPTIONS)
+%        MPanTran(NAME, TSTOP, [], varargin)
+%        S = MPanTran(NAME, TSTOP, MEMVARS, varargin)
 %
 % MPanTran(NAME, TSTOP) runs a PAN transient analysis whose identifier is
-% NAME. The simulation is perfomed from 0 to TSTOP. The default options are
+% NAME. The simulation is perfomed up to TSTOP. The default options are
 % used.
 %
-% MPanTran(NAME, TSTOP, OPTIONS) runs a PAN transient analysis whose
-% identifier is NAME. The simulation is perfomed from 0 (or tstart if
-% specified in OPTIONS) to TSTOP. The OPTIONS structure is used.
+% MPanTran(NAME, TSTOP, [], varargin) runs a PAN transient analysis whose
+% identifier is NAME. The varargin variables are used to specify proper
+% OPTIONS to be used by the transient analysis.
+% varargin must be a sequence of pairs as 'NAME1',VALUE1,'NAME2',VALUE2,...
+% where the name of the options and the allowed values are specified by the
+% PAN simulator documentation. The option "mem" cannot be used since it is
+% emulated by the MEMVARS input detailed below.
 %
-% S = MPanTran(NAME, TSTOP, OPTIONS) works as the previous one
+% The simulation is perfomed from 0 (or tstart if
+% specified in the options) to TSTOP.
+%
+% S = MPanTran(NAME, TSTOP, MEMVARS, varargin) works as the previous one
 % but S is an output cell arrays and each cell contains
-% a label and a waveform. The waveform are those specified with the mem
-% field in OPTIONS. If mem is not specified S is empty.
+% a label and a waveform. The waveform are those specified with the MEMVARS
+% input. If MEMVARS is empty S is empty. MEMVARS must be an array of
+% strings or a cell array of chars or a cell array of strings.
 %
-% The PAN transient analysis computes the time domain behavior of linear
-% and nonlinear circuits. The initial conditions are computed automatically
-% through a DC analysis. Time domain
-% integration employs different types of linear multi-step methods, such as
-% trapezoidal and Gear methods. There are two different
-% mechanisms to control the integration time step.
-% Waveforms made available to control analysis are:
-% 
-% -) Node voltages and branch currents computed by transient analysis, time
-% samples are stores in the 'time' vector. Waveforms can be accessed through the
-% command MPanGet command
-% 
-% -) Results by time domain noise analysis can be retrived through the command
-% 'get("TranName.node:noise")'. Results are computed on a regular time point
-% grid. Time instants can be retrieved through the command
-% 'get("TranName.time:noise")'. The large signal solution is saved on the same
-% time mesh. These results can be retrieved through the command
-% 'get("TranName.node:decimated")'.
-% 
-% -) When the parameter to compute the working period of a periodic circuit is
-% turned on, these other results are available: 'period' the computed working
-% period of the circuit; 'tstart' the starting time instance of a computed
-% period; 'TSTOP' the last time instant of the computed period; 'samples' the
-% index identifying the working period (x-axis of these results).
-%
-% See also
-%    MPanTranSetOptionsShort,
-%    MPanTranSetOptions
-%
-% Angelo Brambilla - Federico Bizzarri 
+% Angelo Brambilla - Federico Bizzarri - Daniele Linaro
 % Copyright (c) 2015.
-% Revision: 1.0.0 $Date: 2015/02/10$
-
+% Revision: 2.0 $Date: 2022/03/10$
+%
 global MPanSuite_NETLIST_INFO
 if isempty(MPanSuite_NETLIST_INFO) || isempty(MPanSuite_NETLIST_INFO.MPanSuite_NETLIST_NAME)
     error('MPanSuiteError: a MPanSuiteNetlist is not loaded yet.')
@@ -61,55 +40,58 @@ if nargin < 2
     error('MPanSuiteError: at least 2 input arguments are required.')
 end
 
-if nargout > 2
-     error('MPanSuiteError: no more than 2 outputs can be assigned')
+if nargout > 1
+    error('MPanSuiteError: no more than 1 output can be assigned')
+end
+
+if nargin > 3
+    if ~isempty(MEMVARS) && nargout == 0
+        warning('The MEMVARS input is not empty but no output has been required')
+    end
+    if rem(nargin,2)  == 0
+        error('Beside NAME, TSTOP, and MEMVARS an even number of inputs is expected')
+    end
 end
 
 str_command = [NAME ' tran tstop = ' num2str(TSTOP,'%23.16e')];
 
-if nargin == 3
-    KeyNames = fieldnames(OPTIONS);
-    m = numel(KeyNames);
-    for k = 1:m
-        key = KeyNames{k};
-        if ~isempty(OPTIONS.(key))
-            if strcmp(key,'savelist') || strcmp(key,'mem')
-                str_command = [str_command ' ' key ' = [']; %#ok<*AGROW>
-                nrow = numel(OPTIONS.(key));
-                for j = 1:nrow-1
-                    str_command = [str_command '"' OPTIONS.(key){j} '",'];
-                end
-                str_command = [str_command '"' OPTIONS.(key){nrow} '"] '];
-            else
-                if ischar(OPTIONS.(key))
-                    str_command = [str_command ' ' key ' = "' OPTIONS.(key) '"'];
-                else
-                    str_command = [str_command ' ' key ' = ' num2str(OPTIONS.(key),'%23.16e')];
-                end
-            end
-        end
-    end
+
+if nargout > 0 && ~isempty(MEMVARS)
+    m = size(varargin,2);
+    varargin{1,m+1} = 'mem';
+    varargin{1,m+2} = MEMVARS;
+    NAME_ = NAME;
+elseif  nargout > 0 && isempty(MEMVARS)
+    warning('The MEMVARS input is empty but an output has been required')
 end
 
+if nargin > 2
+    [str_command, OPTIONS] = MPanStrCommandComplete(str_command,varargin{:});
+end
+
+clear NAME TSTOP MEMVARS varargin
 pansimc(str_command);
 
 MPanUpdateRawFilesList();
-    
+
 if nargout == 1
-    if ~isempty(OPTIONS.mem)
-        nmem = numel(OPTIONS.mem);
-        S = cell(nmem,1);
-        tmp = struct('label',[],'signal',[]);
-        for k = 1:nmem
-            tmp.label = OPTIONS.mem{k};
-            c_lab = [NAME '.' OPTIONS.mem{k}];
-            tmp.signal = panget(c_lab);
-            S{k} = tmp;
-        end
+    S = [];
+    if exist('OPTIONS','var') && isfield(OPTIONS,'mem')
+        if ~isempty(OPTIONS.mem)
+            nmem = numel(OPTIONS.mem);
+            S = cell(nmem,1);
+            tmp = struct('label',[],'signal',[]);
+            for k = 1:nmem
+                tmp.label = OPTIONS.mem{k};
+                c_lab = [NAME_ '.' OPTIONS.mem{k}];
+                tmp.signal = panget(c_lab);
+                S{k} = tmp;
+            end
             varargout{1} = S;
-        else
-        warning('MPAnSuiteWarning: an output is expected but it is empty since the list mem in the OPTIONS struct is empty');
+        end
+    end
+    if isempty(S)
+        warning('MPAnSuiteWarning: an output is expected but it is empty since either the mem option was not given or its value is an empty list');
         varargout{1} = [];
     end
 end
-
