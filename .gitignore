@@ -1,7 +1,8 @@
 .DS_Store
-
-# Prerequisites
-*.d
+*.mexa64
+*.raw
+*.log
+.pan
 
 # Object files
 *.o
@@ -43,12 +44,3 @@
 *.su
 *.idb
 *.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
